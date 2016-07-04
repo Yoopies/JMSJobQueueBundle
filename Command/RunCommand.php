@@ -356,8 +356,11 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
             ->add('--jms-job-id='.$job->getId())
         ;
 
-        foreach ($job->getArgs() as $arg) {
-            $pb->add($arg);
+        $args = json_decode($job->getArgs());
+        if(!empty($args)){
+            foreach ($args as $arg) {
+                $pb->add($arg);
+            }
         }
         $proc = $pb->getProcess();
         $proc->start();
