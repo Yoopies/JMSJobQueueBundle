@@ -29,7 +29,7 @@ use Symfony\Component\HttpKernel\Exception\FlattenException;
  * @ORM\Table(name = "jms_jobs", indexes = {
  *     @ORM\Index("cmd_search_index", columns = {"command"}),
  *     @ORM\Index("sorting_index", columns = {"state", "priority", "id"}),
- *     @ORM\Index("IDX_search_todo", columns = {"id", "workerName", "executeAfter", "state"}),
+ *     @ORM\Index("IDX_search_todo", columns = {"workerName", "executeAfter", "state"}),
  *     @ORM\Index("IDX_command_state_args", columns = {"command", "args", "state"}),
  * })
  * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
