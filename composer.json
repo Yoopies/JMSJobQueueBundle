@@ -13,9 +13,10 @@
     ],
     "require": {
         "php": "^5.5.0 || ^7.0",
-        "symfony/framework-bundle": ">=2.1,<3.0-dev",
-        "doctrine/common": ">=2.3,<3.0",
-        "jms/di-extra-bundle": ">=1.1,<2.0"
+        "symfony/framework-bundle": "^2.1 || ^3.1",
+        "symfony/debug": "^2.3 || ^3.0",
+        "doctrine/common": "^2.3",
+        "jms/di-extra-bundle": "^1.1"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "*",
@@ -32,7 +33,8 @@
         "symfony/form": "*",
         "symfony/validator": "*",
         "pagerfanta/pagerfanta": "dev-master",
-        "phpunit/phpunit": "^5.2"
+        "phpunit/phpunit": "^5.2",
+        "symfony/intl": "*"
     },
     "suggest": {
         "pagerfanta/pagerfanta": "Required when using the webinterface.",
