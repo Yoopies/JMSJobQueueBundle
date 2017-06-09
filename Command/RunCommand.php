@@ -436,7 +436,7 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
         }
 
         $pb
-            ->add('php')
+            ->add(PHP_BINARY)
             ->add($this->consoleFile)
             ->add('--env='.$this->env)
         ;
