@@ -292,11 +292,6 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
                 $cls .= "'".$arg."' ";
             }
         }
-
-
-        foreach ($job->getArgs() as $arg) {
-            $pb->add($arg);
-        }
         
         $proc = new Process($cls);
         $proc->start();
@@ -339,11 +334,7 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
             $cls .= "'--verbose'";
 
             // We use a separate process to clean up.
-<<<<<<< HEAD
             $proc = new Process($cls);
-=======
-            $proc = new Process($pb->getProcess()->getCommandLine());
->>>>>>> upstream/master
             if (0 !== $proc->run()) {
                 $ex = new ProcessFailedException($proc);
                 $this->output->writeln(sprintf('There was an error when marking %s as incomplete: %s', $job, $ex->getMessage()));
