@@ -82,7 +82,7 @@ class RunCommand extends \Symfony\Bundle\FrameworkBundle\Command\ContainerAwareC
         if ($workerName === null) {
             $workerName = gethostname().'-'.getmypid();
         }
-        if (strlen($workerName) > 50) {
+        if (strlen($workerName) > 100) {
             throw new \RuntimeException(sprintf(
                 '"worker-name" must not be longer than 50 chars, but got "%s" (%d chars).',
                 $workerName,
