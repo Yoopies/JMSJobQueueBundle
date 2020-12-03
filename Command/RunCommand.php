@@ -19,9 +19,6 @@
 namespace JMS\JobQueueBundle\Command;
 
 use Doctrine\ORM\EntityManager;
-use JMS\JobQueueBundle\Entity\Repository\JobRepository;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use JMS\JobQueueBundle\Exception\LogicException;
 use JMS\JobQueueBundle\Entity\Job;
 use JMS\JobQueueBundle\Entity\Repository\JobManager;
 use JMS\JobQueueBundle\Event\NewOutputEvent;
@@ -261,7 +258,6 @@ class RunCommand extends Command
     private function getRunningJobsPerQueue()
     {
         $runningJobsPerQueue = array();
-
         foreach ($this->runningJobs as $jobDetails) {
             /** @var Job $job */
             $job = $jobDetails['job'];
@@ -376,8 +372,11 @@ class RunCommand extends Command
         $args[] = $job->getCommand();
         $args[] = '--jms-job-id='.$job->getId();
 
-        foreach ($job->getArgs() as $arg) {
-            $args[] = $arg;
+        $jobArgs = json_decode($job->getArgs());
+        if (!empty($jobArgs)) {
+            foreach ($jobArgs as $arg) {
+                $args[] = $arg;
+            }
         }
 
         $proc = new Process($args);
@@ -424,10 +423,9 @@ class RunCommand extends Command
 
             // We use a separate process to clean up.
             $proc = new Process($args);
-
             if (0 !== $proc->run()) {
                 $ex = new ProcessFailedException($proc);
-                
+
                 $this->output->writeln(sprintf('There was an error when marking %s as incomplete: %s', $job, $ex->getMessage()));
             }
         }
