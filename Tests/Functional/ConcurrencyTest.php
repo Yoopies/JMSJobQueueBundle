@@ -77,7 +77,7 @@ CONFIG
         $this->importDatabaseSchema();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         @unlink($this->databaseFile);
         @unlink($this->configFile);
