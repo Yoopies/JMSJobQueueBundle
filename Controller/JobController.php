@@ -16,8 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class JobController extends AbstractController
 {
-    public function __construct(protected JobManager $jobManager, protected ManagerRegistry $doctrine)
+    protected JobManager $jobManager;
+    protected ManagerRegistry $doctrine;
+
+    public function __construct(JobManager $jobManager, ManagerRegistry $doctrine)
     {
+        $this->jobManager = $jobManager;
+        $this->doctrine = $doctrine;
     }
 
     /**

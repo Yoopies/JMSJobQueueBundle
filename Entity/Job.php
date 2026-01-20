@@ -30,7 +30,7 @@ use Symfony\Component\ErrorHandler\Exception\FlattenException;
  *     @ORM\Index("cmd_search_index", columns = {"command"}),
  *     @ORM\Index("sorting_index", columns = {"state", "priority", "id"}),
  *     @ORM\Index("IDX_search_todo", columns = {"workerName", "executeAfter", "state"}),
- *     @ORM\Index("IDX_command_state_args", columns = {"command", "args", "state"}),
+ *     @ORM\Index("IDX_command_state_args", columns = {"command", "args", "state"})
  * })
  * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  *
@@ -595,14 +595,17 @@ class Job
         $this->stackTrace = $ex;
     }
 
-    public function getStackTrace(): FlattenException|null|false
+    /**
+     * @return FlattenException|null|false
+     */
+    public function getStackTrace()
     {
         if ($this->stackTrace !== null) {
             try {
                 // This will fail for legacy Symfony\Component\ErrorHandler\Exception\FlattenException class.
                 // Only happens for old job records with above class as stack trace exception.
                 $this->stackTrace->toArray();
-            } catch (\Error|\Exception) {
+            } catch (\Error|\Exception $ex) {
                 return false;
             }
         }

@@ -132,7 +132,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
         throw new \LogicException('findFirst() is not supported.');
     }
 
-    public function reduce(Closure $func, mixed $initial = null)
+    public function reduce(Closure $func, $initial = null)
     {
         throw new \LogicException('reduce() is not supported.');
     }
@@ -145,7 +145,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists(mixed $offset): bool
+    public function offsetExists($offset): bool
     {
         $this->initialize();
 
@@ -160,7 +160,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $offset
      * @return mixed
      */
-    public function offsetGet(mixed $offset): mixed
+    public function offsetGet($offset)
     {
         $this->initialize();
 
@@ -177,7 +177,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $value
      * @return bool
      */
-    public function offsetSet(mixed $offset, mixed $value): void
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException('Adding new related entities is not supported after initial creation.');
     }
@@ -190,7 +190,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $offset
      * @return mixed
      */
-    public function offsetUnset(mixed $offset): void
+    public function offsetUnset($offset): void
     {
         throw new \LogicException('unset() is not supported.');
     }
@@ -271,7 +271,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $key The key.
      * @return mixed The element or NULL, if no element exists for the given key.
      */
-    public function get(mixed $key): mixed
+    public function get($key)
     {
         $this->initialize();
 
@@ -329,7 +329,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $value
      * @return void
      */
-    public function set(mixed $key, mixed $value)
+    public function set($key, $value)
     {
         throw new \LogicException('set() is not supported.');
     }
@@ -340,7 +340,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $value
      * @return boolean Always TRUE.
      */
-    public function add(mixed $value)
+    public function add($value)
     {
         throw new \LogicException('Adding new entities is not supported after creation.');
     }
