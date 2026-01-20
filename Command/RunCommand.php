@@ -120,7 +120,7 @@ class RunCommand extends Command
             $workerName = gethostname().'-'.getmypid();
         }
 
-        if (strlen($workerName) > 50) {
+        if (strlen($workerName) > 100) {
             throw new \RuntimeException(sprintf(
                 '"worker-name" must not be longer than 50 chars, but got "%s" (%d chars).',
                 $workerName,
@@ -374,8 +374,11 @@ class RunCommand extends Command
         $args[] = $job->getCommand();
         $args[] = '--jms-job-id='.$job->getId();
 
-        foreach ($job->getArgs() as $arg) {
-            $args[] = $arg;
+        $jobArgs = json_decode($job->getArgs());
+        if (!empty($jobArgs)) {
+            foreach ($jobArgs as $arg) {
+                $args[] = $arg;
+            }
         }
 
         $proc = new Process($args);

@@ -29,6 +29,8 @@ use Symfony\Component\ErrorHandler\Exception\FlattenException;
  * @ORM\Table(name = "jms_jobs", indexes = {
  *     @ORM\Index("cmd_search_index", columns = {"command"}),
  *     @ORM\Index("sorting_index", columns = {"state", "priority", "id"}),
+ *     @ORM\Index("IDX_search_todo", columns = {"workerName", "executeAfter", "state"}),
+ *     @ORM\Index("IDX_command_state_args", columns = {"command", "args", "state"}),
  * })
  * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  *
@@ -110,7 +112,7 @@ class Job
     /** @ORM\Column(type = "datetime", name="checkedAt", nullable = true) */
     private $checkedAt;
 
-    /** @ORM\Column(type = "string", name="workerName", length = 50, nullable = true) */
+    /** @ORM\Column(type = "string", name="workerName", length = 100, nullable = true) */
     private $workerName;
 
     /** @ORM\Column(type = "datetime", name="executeAfter", nullable = true) */
@@ -122,7 +124,10 @@ class Job
     /** @ORM\Column(type = "string") */
     private $command;
 
-    /** @ORM\Column(type = "json") */
+    /**
+     * Use string to be able to have INDEX on it
+     * @ORM\Column(type = "string", length=255)
+     */
     private $args;
 
     /**
@@ -212,7 +217,7 @@ class Job
         }
 
         $this->command = $command;
-        $this->args = $args;
+        $this->args = json_encode($args);
         $this->state = $confirmed ? self::STATE_PENDING : self::STATE_NEW;
         $this->queue = $queue;
         $this->priority = $priority * -1;
