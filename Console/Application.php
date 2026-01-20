@@ -38,7 +38,7 @@ class Application extends BaseApplication
         }
     }
 
-    public function doRun(InputInterface $input, OutputInterface $output): int
+    public function doRun(InputInterface $input, OutputInterface $output)
     {
         $this->input = $input;
 
