@@ -39,7 +39,7 @@ class JobManager
     public function __construct(
         private readonly ManagerRegistry $registry,
         private readonly EventDispatcherInterface $dispatcher,
-        private RetryScheduler $retryScheduler,
+        private ?RetryScheduler $retryScheduler = null,
     ) {
     }
 
