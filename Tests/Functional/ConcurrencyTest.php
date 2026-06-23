@@ -53,7 +53,7 @@ class ConcurrencyTest extends BaseTestCase
         $this->assertEquals(array('one', 'two'), $workers);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->databaseFile = tempnam(sys_get_temp_dir(), 'db');
         $this->configFile = tempnam(sys_get_temp_dir(), 'di-cfg');
@@ -84,7 +84,7 @@ CONFIG
 
         foreach ($this->processes as $process) {
             if ( ! $process->isRunning()) {
-                throw new\ RuntimeException(sprintf('The process "%s" exited prematurely:'."\n\n%s\n\n%s", $process->getCommandLine(), $process->getOutput(), $process->getErrorOutput()));
+                throw new \RuntimeException(sprintf('The process "%s" exited prematurely:'."\n\n%s\n\n%s", $process->getCommandLine(), $process->getOutput(), $process->getErrorOutput()));
             }
 
             $process->stop(5);

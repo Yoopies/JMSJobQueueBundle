@@ -16,18 +16,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class JobController extends AbstractController
 {
-    protected JobManager $jobManager;
-    protected ManagerRegistry $doctrine;
-
-    public function __construct(JobManager $jobManager, ManagerRegistry $doctrine)
-    {
-        $this->jobManager = $jobManager;
-        $this->doctrine = $doctrine;
+    public function __construct(
+        private readonly JobManager $jobManager,
+        private readonly ManagerRegistry $doctrine,
+    ) {
     }
 
-    /**
-     * @Route("/", name = "jms_jobs_overview")
-     */
+    #[Route('/', name: 'jms_jobs_overview')]
     public function overviewAction(Request $request)
     {
         $jobFilter = JobFilter::fromRequest($request);
@@ -73,9 +68,7 @@ class JobController extends AbstractController
         ));
     }
 
-    /**
-     * @Route("/{id}", name = "jms_jobs_details")
-     */
+    #[Route('/{id}', name: 'jms_jobs_details')]
     public function detailsAction(Job $job)
     {
         $relatedEntities = array();
@@ -91,7 +84,10 @@ class JobController extends AbstractController
         $statisticData = $statisticOptions = array();
         if ($this->getParameter('jms_job_queue.statistics')) {
             $dataPerCharacteristic = array();
-            foreach ($this->getEm()->getConnection()->query("SELECT * FROM jms_job_statistics WHERE job_id = ".$job->getId()) as $row) {
+            foreach ($this->getEm()->getConnection()->executeQuery(
+                'SELECT * FROM jms_job_statistics WHERE job_id = :id',
+                ['id' => $job->getId()]
+            )->fetchAllAssociative() as $row) {
                 $dataPerCharacteristic[$row['characteristic']][] = array(
                     // hack because postgresql lower-cases all column names.
                     array_key_exists('createdAt', $row) ? $row['createdAt'] : $row['createdat'],
@@ -134,9 +130,7 @@ class JobController extends AbstractController
         ));
     }
 
-    /**
-     * @Route("/{id}/retry", name = "jms_jobs_retry_job")
-     */
+    #[Route('/{id}/retry', name: 'jms_jobs_retry_job')]
     public function retryJobAction(Job $job)
     {
         $state = $job->getState();

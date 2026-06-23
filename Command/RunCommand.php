@@ -37,45 +37,21 @@ class RunCommand extends Command
 {
     protected static $defaultName = 'jms-job-queue:run';
 
-    /** @var string */
-    private $env;
+    private ?string $env = null;
+    private bool $verbose = false;
+    private ?OutputInterface $output = null;
+    private array $runningJobs = [];
+    private bool $shouldShutdown = false;
 
-    /** @var boolean */
-    private $verbose;
 
-    /** @var OutputInterface */
-    private $output;
-
-    /** @var ManagerRegistry */
-    private $registry;
-
-    /** @var JobManager */
-    private $jobManager;
-
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var array */
-    private $runningJobs = array();
-
-    /** @var bool */
-    private $shouldShutdown = false;
-
-    /** @var array */
-    private $queueOptionsDefault;
-
-    /** @var array */
-    private $queueOptions;
-
-    public function __construct(ManagerRegistry $managerRegistry, JobManager $jobManager, EventDispatcherInterface $dispatcher, array $queueOptionsDefault, array $queueOptions)
-    {
+    public function __construct(
+        private readonly ManagerRegistry $registry,
+        private readonly JobManager $jobManager,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $queueOptionsDefault,
+        private readonly array $queueOptions
+    ) {
         parent::__construct();
-
-        $this->registry = $managerRegistry;
-        $this->jobManager = $jobManager;
-        $this->dispatcher = $dispatcher;
-        $this->queueOptionsDefault = $queueOptionsDefault;
-        $this->queueOptions = $queueOptions;
     }
 
     protected function configure()
@@ -131,7 +107,6 @@ class RunCommand extends Command
         $this->env = $input->getOption('env');
         $this->verbose = $input->getOption('verbose');
         $this->output = $output;
-        $this->getEntityManager()->getConnection()->getConfiguration()->setSQLLogger(null);
 
         if ($this->verbose) {
             $this->output->writeln('Cleaning up stale jobs');
