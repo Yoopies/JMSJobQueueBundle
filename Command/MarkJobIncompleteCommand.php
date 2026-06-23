@@ -15,15 +15,11 @@ class MarkJobIncompleteCommand extends Command
 {
     protected static $defaultName = 'jms-job-queue:mark-incomplete';
 
-    private $registry;
-    private $jobManager;
-
-    public function __construct(Registry $managerRegistry, JobManager $jobManager)
-    {
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly JobManager $jobManager,
+    ) {
         parent::__construct();
-
-        $this->registry = $managerRegistry;
-        $this->jobManager = $jobManager;
     }
 
     protected function configure()

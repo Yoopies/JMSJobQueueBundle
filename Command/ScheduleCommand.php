@@ -19,17 +19,12 @@ class ScheduleCommand extends Command
 {
     protected static $defaultName = 'jms-job-queue:schedule';
 
-    private $registry;
-    private $schedulers;
-    private $cronCommands;
-
-    public function __construct(Registry $managerRegistry, iterable $schedulers, iterable $cronCommands)
-    {
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly iterable $schedulers,
+        private readonly iterable $cronCommands,
+    ) {
         parent::__construct();
-
-        $this->registry = $managerRegistry;
-        $this->schedulers = $schedulers;
-        $this->cronCommands = $cronCommands;
     }
 
     protected function configure()
@@ -118,7 +113,7 @@ class ScheduleCommand extends Command
         $con = $em->getConnection();
 
         $now = new \DateTime();
-        $affectedRows = $con->executeUpdate(
+        $affectedRows = $con->executeStatement(
             "UPDATE jms_cron_jobs SET lastRunAt = :now WHERE command = :command AND lastRunAt = :lastRunAt",
             array(
                 'now' => $now,
