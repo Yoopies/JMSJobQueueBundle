@@ -32,7 +32,8 @@ class JMSJobQueueBundle extends Bundle
         $container->addCompilerPass(
             DoctrineOrmMappingsPass::createAttributeMappingDriver(
                 ['JMS\JobQueueBundle\Entity'],
-                [__DIR__.'/Entity']
+                [__DIR__.'/Entity'],
+                ['jms_job_queue.entity_manager']
             )
         );
     }
