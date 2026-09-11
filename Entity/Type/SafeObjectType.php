@@ -28,6 +28,25 @@ class SafeObjectType extends Type
         return $platform->getBlobTypeDeclarationSQL($column);
     }
 
+    /**
+     * Required by DBAL 3, where Type::getName() is still abstract. DBAL 4
+     * dropped it; the method is simply unused there.
+     */
+    public function getName(): string
+    {
+        return 'jms_job_safe_object';
+    }
+
+    /**
+     * ObjectType, which this type used to extend, hinted its columns with a
+     * DC2Type comment. Keeping the hint means existing DBAL 3 installations see
+     * no schema diff. DBAL 4 dropped type comments and ignores this method.
+     */
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
+    {
+        return true;
+    }
+
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {

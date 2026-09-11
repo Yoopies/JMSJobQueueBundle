@@ -17,12 +17,13 @@
         "symfony/console": "^6.4 || ^7.0",
         "symfony/error-handler": "^6.4 || ^7.0",
         "symfony/process": "^6.4 || ^7.0",
-        "doctrine/common": "^3.0"
+        "doctrine/common": "^3.0",
+        "doctrine/dbal": "^3.6 || ^4.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4 || ^4.0",
         "doctrine/doctrine-bundle": "^2.10",
-        "doctrine/orm": "^2.16 || ^3.0",
+        "doctrine/orm": "^2.16",
         "phpunit/phpunit": "^9.6",
         "symfony/browser-kit": "^6.4 || ^7.0",
         "symfony/css-selector": "^6.4 || ^7.0",
