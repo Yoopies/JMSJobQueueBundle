@@ -587,24 +587,16 @@ class Job
 
     public function setStackTrace(FlattenException $ex)
     {
-        $this->stackTrace = $ex;
+        $this->stackTrace = $ex->toArray();
     }
 
     /**
-     * @return FlattenException|null|false
+     * @return array|null|false The flattened exception, null when the job has no
+     *                          stack trace, or false when the stored trace can no
+     *                          longer be decoded. See SafeObjectType.
      */
     public function getStackTrace()
     {
-        if ($this->stackTrace !== null) {
-            try {
-                // This will fail for legacy Symfony\Component\ErrorHandler\Exception\FlattenException class.
-                // Only happens for old job records with above class as stack trace exception.
-                $this->stackTrace->toArray();
-            } catch (\Error|\Exception $ex) {
-                return false;
-            }
-        }
-
         return $this->stackTrace;
     }
 

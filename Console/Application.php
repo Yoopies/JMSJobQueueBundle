@@ -4,6 +4,7 @@ namespace JMS\JobQueueBundle\Console;
 
 declare(ticks = 10000000);
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\Type;
 
@@ -38,7 +39,7 @@ class Application extends BaseApplication
         }
     }
 
-    public function doRun(InputInterface $input, OutputInterface $output)
+    public function doRun(InputInterface $input, OutputInterface $output): int
     {
         $this->input = $input;
 
@@ -68,7 +69,7 @@ class Application extends BaseApplication
             $this->insertStatStmt = $this->getConnection()->prepare($this->insertStatStmt);
         }
 
-        $this->insertStatStmt->bindValue('jobId', $jobId, \PDO::PARAM_INT);
+        $this->insertStatStmt->bindValue('jobId', $jobId, ParameterType::INTEGER);
         $this->insertStatStmt->bindValue('createdAt', new \DateTime(), Type::getType('datetime'));
 
         foreach ($characteristics as $name => $value) {
@@ -90,13 +91,15 @@ class Application extends BaseApplication
                 'id' => $jobId,
                 'memoryUsage' => memory_get_peak_usage(),
                 'memoryUsageReal' => memory_get_peak_usage(true),
-                'trace' => serialize($ex ? FlattenException::create($ex) : null),
+                'trace' => null !== $ex
+                    ? json_encode(FlattenException::create($ex)->toArray(), \JSON_THROW_ON_ERROR)
+                    : null,
             ),
             array(
-                'id' => \PDO::PARAM_INT,
-                'memoryUsage' => \PDO::PARAM_INT,
-                'memoryUsageReal' => \PDO::PARAM_INT,
-                'trace' => \PDO::PARAM_LOB,
+                'id' => ParameterType::INTEGER,
+                'memoryUsage' => ParameterType::INTEGER,
+                'memoryUsageReal' => ParameterType::INTEGER,
+                'trace' => ParameterType::STRING,
             )
         );
     }

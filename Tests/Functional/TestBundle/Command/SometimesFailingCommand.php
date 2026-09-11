@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class SometimesFailingCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('jms-job-queue:sometimes-failing-cmd')

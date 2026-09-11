@@ -129,7 +129,7 @@
     {% if job.stackTrace is same as(false) %}
         <pre>Stacktrace contains legacy classes and can't be displayed.</pre>
     {% else %}
-        {% for index, exception in job.stackTrace.toarray %}
+        {% for index, exception in job.stackTrace %}
             <div class="trace-details">
                 <div class="trace-head">
                 <span class="sf-toggle" data-toggle-selector="#trace-html-{{ index }}" data-toggle-initial="{{ loop.first ? "display" }}">

@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 
 class SuccessfulCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('jms-job-queue:successful-cmd')

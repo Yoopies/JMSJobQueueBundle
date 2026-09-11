@@ -16,21 +16,21 @@ class JobQueueExtension extends AbstractExtension
         $this->linkGenerators = $generators;
     }
 
-    public function getTests()
+    public function getTests(): array
     {
         return array(
             new TwigTest('jms_job_queue_linkable', array($this, 'isLinkable'))
         );
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return array(
             new TwigFunction('jms_job_queue_path', array($this, 'generatePath'), array('is_safe' => array('html' => true)))
         );
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return array(
             new TwigFilter('jms_job_queue_linkname', array($this, 'getLinkname')),
@@ -92,10 +92,5 @@ class JobQueueExtension extends AbstractExtension
         }
 
         throw new \RuntimeException(sprintf('The entity "%s" has no link generator.', get_class($entity)));
-    }
-
-    public function getName()
-    {
-        return 'jms_job_queue';
     }
 }

@@ -10,10 +10,10 @@ doctrine:
                 mappings:
                     JMSJobQueueBundle:
                         is_bundle: true
-                        type: annotation
+                        type: attribute
 
             default:
                 mappings:
                     TestBundle:
                         is_bundle: true
-                        type: annotation                        
+                        type: attribute
