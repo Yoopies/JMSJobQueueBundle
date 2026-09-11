@@ -21,7 +21,7 @@ class CronTest extends BaseTestCase
         $this->assertEquals(2, substr_count($output, 'Scheduling command scheduled-every-few-seconds'), $output);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->createClient(array('config' => 'persistent_db.yml'));
 
@@ -35,7 +35,7 @@ class CronTest extends BaseTestCase
         $this->app->setAutoExit(false);
         $this->app->setCatchExceptions(false);
 
-        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass('JMSJobQueueBundle:Job');
+        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass(Job::class);
     }
 
     private function doRun(array $args = array())

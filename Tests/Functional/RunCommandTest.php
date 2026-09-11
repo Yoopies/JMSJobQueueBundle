@@ -27,7 +27,7 @@ class RunCommandTest extends BaseTestCase
         $this->assertEquals($expectedOutput, $output);
         $this->assertEquals('failed', $a->getState());
         $this->assertEquals('', $a->getOutput());
-        $this->assertContains('Command "adoigjaoisdjfijasodifjoiajsdf" is not defined.', $a->getErrorOutput());
+        $this->assertStringContainsString('Command "adoigjaoisdjfijasodifjoiajsdf" is not defined.', $a->getErrorOutput());
         $this->assertEquals('canceled', $b->getState());
     }
 
@@ -276,7 +276,7 @@ OUTPUT
         $this->assertNotNull($job->getMemoryUsageReal());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->createClient(array('config' => 'persistent_db.yml'));
 
@@ -290,7 +290,7 @@ OUTPUT
         $this->app->setAutoExit(false);
         $this->app->setCatchExceptions(false);
 
-        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass('JMSJobQueueBundle:Job');
+        $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass(Job::class);
     }
 
     private function runConsoleCommand(array $args = array())

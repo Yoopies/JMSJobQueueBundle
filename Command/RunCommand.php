@@ -25,6 +25,7 @@ use JMS\JobQueueBundle\Event\NewOutputEvent;
 use JMS\JobQueueBundle\Event\StateChangeEvent;
 use JMS\JobQueueBundle\Exception\InvalidArgumentException;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,52 +34,27 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
+#[AsCommand(name: 'jms-job-queue:run')]
 class RunCommand extends Command
 {
-    protected static $defaultName = 'jms-job-queue:run';
+    private ?string $env = null;
+    private bool $verbose = false;
+    private ?OutputInterface $output = null;
+    private array $runningJobs = [];
+    private bool $shouldShutdown = false;
 
-    /** @var string */
-    private $env;
 
-    /** @var boolean */
-    private $verbose;
-
-    /** @var OutputInterface */
-    private $output;
-
-    /** @var ManagerRegistry */
-    private $registry;
-
-    /** @var JobManager */
-    private $jobManager;
-
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var array */
-    private $runningJobs = array();
-
-    /** @var bool */
-    private $shouldShutdown = false;
-
-    /** @var array */
-    private $queueOptionsDefault;
-
-    /** @var array */
-    private $queueOptions;
-
-    public function __construct(ManagerRegistry $managerRegistry, JobManager $jobManager, EventDispatcherInterface $dispatcher, array $queueOptionsDefault, array $queueOptions)
-    {
+    public function __construct(
+        private readonly ManagerRegistry $registry,
+        private readonly JobManager $jobManager,
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly array $queueOptionsDefault,
+        private readonly array $queueOptions
+    ) {
         parent::__construct();
-
-        $this->registry = $managerRegistry;
-        $this->jobManager = $jobManager;
-        $this->dispatcher = $dispatcher;
-        $this->queueOptionsDefault = $queueOptionsDefault;
-        $this->queueOptions = $queueOptions;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Runs jobs from the queue.')
@@ -90,7 +66,7 @@ class RunCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $startTime = time();
 
@@ -131,7 +107,6 @@ class RunCommand extends Command
         $this->env = $input->getOption('env');
         $this->verbose = $input->getOption('verbose');
         $this->output = $output;
-        $this->getEntityManager()->getConnection()->getConfiguration()->setSQLLogger(null);
 
         if ($this->verbose) {
             $this->output->writeln('Cleaning up stale jobs');
@@ -149,6 +124,8 @@ class RunCommand extends Command
             $this->queueOptionsDefault,
             $this->queueOptions
         );
+
+        return 0;
     }
 
     private function runJobs($workerName, $startTime, $maxRuntime, $idleTime, $maxJobs, array $restrictedQueues, array $queueOptionsDefaults, array $queueOptions)
@@ -283,13 +260,13 @@ class RunCommand extends Command
 
             if ( ! empty($newOutput)) {
                 $event = new NewOutputEvent($data['job'], $newOutput, NewOutputEvent::TYPE_STDOUT);
-                $this->dispatcher->dispatch('jms_job_queue.new_job_output', $event);
+                $this->dispatcher->dispatch($event, 'jms_job_queue.new_job_output');
                 $newOutput = $event->getNewOutput();
             }
 
             if ( ! empty($newErrorOutput)) {
                 $event = new NewOutputEvent($data['job'], $newErrorOutput, NewOutputEvent::TYPE_STDERR);
-                $this->dispatcher->dispatch('jms_job_queue.new_job_output', $event);
+                $this->dispatcher->dispatch($event, 'jms_job_queue.new_job_output');
                 $newErrorOutput = $event->getNewOutput();
             }
 
@@ -350,7 +327,7 @@ class RunCommand extends Command
     private function startJob(Job $job)
     {
         $event = new StateChangeEvent($job, Job::STATE_RUNNING);
-        $this->dispatcher->dispatch('jms_job_queue.job_state_change', $event);
+        $this->dispatcher->dispatch($event, 'jms_job_queue.job_state_change');
         $newState = $event->getNewState();
 
         if (Job::STATE_CANCELED === $newState) {
@@ -448,6 +425,6 @@ class RunCommand extends Command
 
     private function getEntityManager(): EntityManager
     {
-        return /** @var EntityManager */ $this->registry->getManagerForClass('JMSJobQueueBundle:Job');
+        return /** @var EntityManager */ $this->registry->getManagerForClass(Job::class);
     }
 }

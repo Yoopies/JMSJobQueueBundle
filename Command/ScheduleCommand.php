@@ -2,7 +2,7 @@
 
 namespace JMS\JobQueueBundle\Command;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use JMS\JobQueueBundle\Console\CronCommand;
@@ -10,29 +10,24 @@ use JMS\JobQueueBundle\Cron\CommandScheduler;
 use JMS\JobQueueBundle\Cron\JobScheduler;
 use JMS\JobQueueBundle\Entity\CronJob;
 use JMS\JobQueueBundle\Entity\Job;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'jms-job-queue:schedule')]
 class ScheduleCommand extends Command
 {
-    protected static $defaultName = 'jms-job-queue:schedule';
-
-    private $registry;
-    private $schedulers;
-    private $cronCommands;
-
-    public function __construct(ManagerRegistry $managerRegistry, iterable $schedulers, iterable $cronCommands)
-    {
+    public function __construct(
+        private readonly Registry $registry,
+        private readonly iterable $schedulers,
+        private readonly iterable $cronCommands,
+    ) {
         parent::__construct();
-
-        $this->registry = $managerRegistry;
-        $this->schedulers = $schedulers;
-        $this->cronCommands = $cronCommands;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Schedules jobs at defined intervals')
@@ -41,7 +36,7 @@ class ScheduleCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $maxRuntime = $input->getOption('max-runtime');
         if ($maxRuntime > 300) {
@@ -78,7 +73,7 @@ class ScheduleCommand extends Command
 
             $timeToWait = microtime(true) - $lastRunAt + $minJobInterval;
             if ($timeToWait > 0) {
-                usleep($timeToWait * 1E6);
+                usleep((int)($timeToWait * 1E6));
             }
         }
 
@@ -118,7 +113,7 @@ class ScheduleCommand extends Command
         $con = $em->getConnection();
 
         $now = new \DateTime();
-        $affectedRows = $con->executeUpdate(
+        $affectedRows = $con->executeStatement(
             "UPDATE jms_cron_jobs SET lastRunAt = :now WHERE command = :command AND lastRunAt = :lastRunAt",
             array(
                 'now' => $now,

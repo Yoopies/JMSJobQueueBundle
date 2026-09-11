@@ -3,7 +3,6 @@
 namespace JMS\JobQueueBundle\Tests\Functional;
 
 use JMS\JobQueueBundle\Retry\ExponentialRetryScheduler;
-use JMS\JobQueueBundle\Retry\RetryScheduler;
 use JMS\JobQueueBundle\Tests\Functional\TestBundle\Entity\Train;
 
 use JMS\JobQueueBundle\Tests\Functional\TestBundle\Entity\Wagon;
@@ -38,12 +37,11 @@ class JobManagerTest extends BaseTestCase
         $this->assertSame($a2, $this->jobManager->getJob('a'));
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Found no job for command
-     */
     public function testGetOneThrowsWhenNotFound()
     {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Found no job for command');
+
         $this->jobManager->getJob('foo');
     }
 
@@ -179,10 +177,10 @@ class JobManagerTest extends BaseTestCase
 
         $this->dispatcher->expects($this->at(0))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new StateChangeEvent($a, 'terminated'));
+            ->with(new StateChangeEvent($a, 'terminated'), 'jms_job_queue.job_state_change');
         $this->dispatcher->expects($this->at(1))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new StateChangeEvent($b, 'canceled'));
+            ->with( new StateChangeEvent($b, 'canceled'), 'jms_job_queue.job_state_change');
 
         $this->assertEquals('running', $a->getState());
         $this->assertEquals('pending', $b->getState());
@@ -204,11 +202,11 @@ class JobManagerTest extends BaseTestCase
 
         $this->dispatcher->expects($this->at(0))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new StateChangeEvent($a, 'canceled'));
+            ->with(new StateChangeEvent($a, 'canceled'), 'jms_job_queue.job_state_change');
 
         $this->dispatcher->expects($this->at(1))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new StateChangeEvent($b, 'canceled'));
+            ->with(new StateChangeEvent($b, 'canceled'), 'jms_job_queue.job_state_change');
 
         $this->jobManager->closeJob($a, 'canceled');
         $this->assertEquals('canceled', $a->getState());
@@ -227,13 +225,13 @@ class JobManagerTest extends BaseTestCase
 
         $this->dispatcher->expects($this->at(0))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new StateChangeEvent($a, 'failed'));
+            ->with(new StateChangeEvent($a, 'failed'), 'jms_job_queue.job_state_change');
         $this->dispatcher->expects($this->at(1))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))));
+            ->with(new LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))), 'jms_job_queue.job_state_change');
         $this->dispatcher->expects($this->at(2))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))));
+            ->with(new LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))), 'jms_job_queue.job_state_change');
 
         $this->assertCount(0, $a->getRetryJobs());
         $this->jobManager->closeJob($a, 'failed');
@@ -253,7 +251,7 @@ class JobManagerTest extends BaseTestCase
         $this->assertEquals('terminated', $a->getState());
 
         $this->em->clear();
-        $reloadedA = $this->em->find('JMSJobQueueBundle:Job', $a->getId());
+        $reloadedA = $this->em->find(Job::class, $a->getId());
         $this->assertCount(2, $reloadedA->getRetryJobs());
     }
 
@@ -277,9 +275,9 @@ class JobManagerTest extends BaseTestCase
         $this->em->clear();
         $this->assertNotSame($defEm, $this->em);
 
-        $reloadedJ = $this->em->find('JMSJobQueueBundle:Job', $j->getId());
+        $reloadedJ = $this->em->find(Job::class, $j->getId());
 
-        $reloadedWagon = $reloadedJ->findRelatedEntity('JMS\JobQueueBundle\Tests\Functional\TestBundle\Entity\Wagon');
+        $reloadedWagon = $reloadedJ->findRelatedEntity(Wagon::class);
         $reloadedWagon->state = 'broken';
         $defEm->persist($reloadedWagon);
         $defEm->flush();
@@ -287,7 +285,7 @@ class JobManagerTest extends BaseTestCase
         $this->assertTrue($defEm->contains($reloadedWagon->train));
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->createClient();
         $this->importDatabaseSchema();

@@ -5,10 +5,11 @@ namespace JMS\JobQueueBundle\Tests\Functional;
 use Doctrine\ORM\EntityManager;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class BaseTestCase extends WebTestCase
 {
-    static protected function createKernel(array $options = array())
+    static protected function createKernel(array $options = array()): KernelInterface
     {
         $config = isset($options['config']) ? $options['config'] : 'default.yml';
 
