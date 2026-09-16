@@ -32,7 +32,10 @@ class JMSJobQueueBundle extends Bundle
         $container->addCompilerPass(
             DoctrineOrmMappingsPass::createAttributeMappingDriver(
                 ['JMS\JobQueueBundle\Entity'],
-                [__DIR__.'/Entity']
+                [__DIR__.'/Entity'],
+                // Mandatory behaviour in Doctrine ORM 3.0; leaving it off makes the driver emit a
+                // deprecation and overrides the application's own report_fields_where_declared.
+                reportFieldsWhereDeclared: true
             )
         );
     }
